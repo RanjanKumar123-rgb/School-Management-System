@@ -48,11 +48,18 @@ public class ApplicationExceptionHanderClass extends ResponseEntityExceptionHand
 				"rootCause", "username or email or contact is duplicate!!"), HttpStatus.BAD_REQUEST);
 	}
 	
-	@ExceptionHandler(AdminException.class)
-	public ResponseEntity<Object> handleAdminException(AdminException ex){
+	@ExceptionHandler(SQLDataIntegretyViolationException.class)
+	public ResponseEntity<Object> handleSQLDataIntegretyViolation(SQLDataIntegretyViolationException ex){
 		return new ResponseEntity<Object>(Map.of(
 				"status",HttpStatus.BAD_REQUEST.value(),
 				"message", ex.getMessage(),
 				"rootCause", "Cannot create a 2nd admin. Admin already exists !!!"), HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<Object> handleUserNotFound(UserNotFoundException ex)
+	{
+		return new ResponseEntity<Object>
+			(structure(HttpStatus.NOT_FOUND, ex.getMessage(), "User not found with the given Id"), HttpStatus.NOT_FOUND);
 	}
 }

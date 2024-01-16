@@ -31,4 +31,5 @@ public class User
 	@Column(unique = true)
 	private String email;
 	private UserRole userRole;
+	private boolean isDeleted=false;
 }

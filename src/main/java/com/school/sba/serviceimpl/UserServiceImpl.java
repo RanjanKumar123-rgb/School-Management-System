@@ -1,5 +1,7 @@
 package com.school.sba.serviceimpl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,8 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
-import com.school.sba.exceptions.AdminException;
+import com.school.sba.exceptions.SQLDataIntegretyViolationException;
 import com.school.sba.exceptions.UniqueConstraintViolationException;
+import com.school.sba.exceptions.UserNotFoundException;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.requestdto.UserRequest;
 import com.school.sba.responsedto.UserResponse;
@@ -31,7 +34,7 @@ public class UserServiceImpl implements UserService
 	{
 		if(userRequest.getUserRole()==UserRole.ADMIN && userRepo.existsByUserRole(UserRole.ADMIN))
 		{
-			throw new AdminException("Cannot create a 2nd admin");
+			throw new SQLDataIntegretyViolationException("Cannot create a 2nd admin");
 		}else {
 			User user;
 			try {
@@ -45,6 +48,24 @@ public class UserServiceImpl implements UserService
 			return new ResponseEntity<ResponseStructure<UserResponse>> (structure, HttpStatus.OK);
 		}
 		
+	}
+	
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId) 
+	{
+		User user = userRepo.findById(userId).get();
+		if(user!=null && !user.isDeleted())
+		{
+			user.setDeleted(true);
+			userRepo.save(user);
+			structure.setStatusCode(HttpStatus.OK.value());
+			structure.setMessage("Account Deleted");
+			structure.setData(mapToUserResponse(user));
+		}else
+		{
+			throw new UserNotFoundException("User deatils not found");
+		}
+		return new ResponseEntity<ResponseStructure<UserResponse>> (structure, HttpStatus.OK);
 	}
 	
 	public User mapToUser(UserRequest request)

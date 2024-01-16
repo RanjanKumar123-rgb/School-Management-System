@@ -6,7 +6,7 @@ import lombok.Getter;
 @SuppressWarnings("serial")
 @Getter
 @AllArgsConstructor
-public class AdminException extends RuntimeException 
+public class SQLDataIntegretyViolationException extends RuntimeException 
 {
 	private String message;
 }
